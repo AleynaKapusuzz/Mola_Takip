@@ -847,6 +847,12 @@ data/
 - openpyxl ve pandas güncel olduğundan emin ol
 
 ---
+## 👨‍💼 Maintainer
+
+- Aleyna Kapusuz
+- Hande Bandırmalı
+
+---
 
 **Son Güncelleme:** Şubat 2025  
 **Sürüm:** 1.0.0  
