@@ -116,19 +116,6 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-**requirements.txt** (örnek):
-```
-fastapi==0.104.1
-sqlalchemy==2.0.23
-pandas==2.1.3
-openpyxl==3.1.2
-uvicorn==0.24.0
-pydantic==2.5.0
-pydantic-settings==2.1.0
-scikit-learn==1.3.2
-pyodbc==4.0.35
-```
-
 ### 4. .env Dosyasını Oluştur
 
 `.env` dosyasını proje root'unda oluştur ve SQL Server bilgilerini gir:
@@ -858,31 +845,6 @@ data/
 - `/tmp` klasöründe yazma izni ol
 - Disk alanı yeterli ol
 - openpyxl ve pandas güncel olduğundan emin ol
-
----
-
-## 📞 İletişim & Destek
-
-- **GitHub Issues:** [Hata bildir](https://github.com/yourusername/mola-takip-sistemi/issues)
-- **Email:** your.email@example.com
-- **Telefon:** +90 123 456 7890
-
----
-
-## 📜 Lisans
-
-Bu proje **MIT Lisansı** altında dağıtılmaktadır.
-
-Daha fazla bilgi için `LICENSE` dosyasına bakın.
-
----
-
-## 🙏 Teşekkürler
-
-- Meyer Turnike Sistemi
-- FastAPI Topluluğu
-- Pandas Geliştiricileri
-- Açık kaynaklı tüm katkıda bulunanlar
 
 ---
 
