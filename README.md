@@ -2,24 +2,30 @@
 
 # 🎯 Mola Takip Sistemi
 
-Üretim tesisinde çalışan personelin **mola ve ara sürelerini** otomatik olarak takip eden, analiz eden ve raporlayan akıllı bir sistemdir.
+📋 Proje Özeti
 
-> **Amaç**: Meyer turnike sisteminizden gelen ham giriş/çıkış kayıtlarını işleyip, mola limitlerini hesaplamak, anomalileri tespit etmek ve detaylı Excel raporları oluşturmak.
+Mola Takip Sistemi, çalışanların giriş-çıkış kartını okuyarak çalışma süresi, mola süresi ve mesai saatlerini otomatik olarak hesaplayan bir web uygulamasıdır. SQL Server veritabanından terminal kayıtlarını çekerek, vardiya bilgilerine göre iş gücü yönetimini sağlar.
+
+---
+
+## 🛠️ Teknoloji Stack
+
+| Teknoloji | Amaç |
+|-----------|------|
+| **FastAPI** | REST API oluşturma, endpoint yönetimi |
+| **SQLAlchemy + Pandas** | SQL Server ile veri iletişimi ve veri işleme |
+| **Uvicorn** | ASGI sunucusu (API hosting) |
+| **Python 3.9+** | Backend geliştirme |
+| **HTML/CSS/JavaScript** | Web arayüzü ve kullanıcı etkileşimi |
+| **NSSM** | Windows hizmet olarak uygulama çalıştırma |
 
 ---
 
-## 📋 İçindekiler
+## 🌐 Erişim Linki
 
-- [Sistem Hakkında](#sistem-hakkında)
-- [Teknoloji Yığını](#teknoloji-yığını)
-- [Kurulum](#kurulum)
-- [Konfigürasyon](#konfigürasyon)
-- [Proje Yapısı](#proje-yapısı)
-- [Mimarı ve İş Akışı](#mimarı-ve-iş-akışı)
-- [Dosya Açıklamaları](#dosya-açıklamaları)
-- [Kullanım Örnekleri](#kullanım-örnekleri)
-
----
+```
+http://yapayzeka:8501
+```
 
 ## 🔍 Sistem Hakkında
 
@@ -43,161 +49,40 @@ Meyer Turnike Sistemi
   - Admin paneli
 ```
 
-### Temel Özellikleri
+---
 
-| Özellik | Açıklama |
-|---------|----------|
-| **Otomatik Veri Çekme** | SQL Server'dan Meyer Pool tablosundan kayıtları sorgular |
-| **Mola Hesaplaması** | Vardiya, görev, çalışma saati bazında mola limitlerini dinamik hesaplar |
-| **Çift Okutma Tespiti** | Aynı anda iki kez okutmayı (4 saniye içinde) algılar ve işaretler |
-| **Anomali Analizi** | Anormal mola kullanımını ve tutarsızlıkları otomatik bulur |
-| **Excel Raporları** | Özet ve detaylı formatda indirilebilir raporlar |
-| **Kullanıcı Yönetimi** | Admin paneli ile kullanıcı, şifre ve oturum yönetimi |
-| **Performans Optimizasyonu** | 1 aylık veri ~30x daha hızlı işlenir (caching + groupby) |
+## 🔄 Proje Mantığı
+
+### Veri Akışı
+
+```
+SQL Server (Terminal Kayıtları)
+         ↓
+   database.py (Sorgu ve Çekme)
+         ↓
+   models.py (Vardiya Tespiti & Mola Hesaplama)
+         ↓
+   hesaplama.py (Anomali Tespiti & Çift Okutma Kontrolü)
+         ↓
+   FastAPI (API Endpoint'leri)
+         ↓
+   HTML/JavaScript (Web Arayüzü)
+```
+
+### Temel İş Akışı
+
+1. **Veri Çekme**: Belirtilen tarih aralığında terminal 1013, 1014, 1015 vb. numaralandırılmış kapılardan giriş-çıkış kayıtlarını çeker
+2. **Vardiya Tespiti**: Giriş saatine göre çalışanın hangi vardiyada (Gündüz/Ara/Gece) olduğunu belirler
+3. **Mola Hesabı**: Vardiya ve göreve (bakım/elektrik/normal) göre molaya hak olan süreyi hesaplar
+4. **Anomali Tespiti**: Çift okutma (4 saniye içinde aynı tip iki kayıt) ve ek çalışmalar tespit eder
+5. **Sonuç**: Personelin günlük çalışma, mola ve mesai sürelerini sunara gönderir
 
 ---
 
-## 🛠️ Teknoloji Yığını
 
-### Backend
-- **FastAPI** - Modern Python web framework
-- **SQLAlchemy** - ORM ve SQL sorgulaması
-- **Pandas** - Veri işleme ve analiz
-- **openpyxl** - Excel dosyası oluşturma
-- **Pydantic** - Veri validasyonu
-
-### Veritabanı
-- **SQL Server** - Microsoft SQL Server (Meyer sistem)
-- **ODBC Driver 17** - Bağlantı sürücüsü
-
-### Frontend
-- **HTML5 / CSS3** - Arayüz yapısı
-- **JavaScript (Vanilla)** - Dinamik işlemler
-- **Chart.js** - İstatistik grafikleri
-
-### Deployment
-- **NSSM** - Windows servisi olarak çalıştırma
-- **Uvicorn** - ASGI sunucusu
 
 ---
 
-## 💻 Kurulum
-
-### Ön Koşullar
-
-- **Python 3.9+** (3.10+ önerilir)
-- **SQL Server** 2016 veya üzeri
-- **ODBC Driver 17 for SQL Server**
-- **Windows** işletim sistemi (NSSM için)
-
-### 1. Depo İndir
-
-```bash
-git clone https://github.com/yourusername/mola-takip-sistemi.git
-cd mola-takip-sistemi
-```
-
-### 2. Python Ortamını Kur
-
-```bash
-# Virtual environment oluştur
-python -m venv venv
-
-# Ortamı aktifleştir (Windows)
-venv\Scripts\activate
-
-# Ortamı aktifleştir (Linux/Mac)
-source venv/bin/activate
-```
-
-### 3. Bağımlılıkları Yükle
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. .env Dosyasını Oluştur
-
-`.env` dosyasını proje root'unda oluştur ve SQL Server bilgilerini gir:
-
-```env
-DB_SERVER=GEDIKDB\GDK
-DB_PORT=1433
-DB_NAME=GEDIKPILIC14930_Meyer
-DB_USER=your_username
-DB_PASSWORD=your_password
-API_HOST=0.0.0.0
-API_PORT=8001
-APP_ENV=production
-```
-
-### 5. Uygulamayı Çalıştır
-
-**Geliştirme ortamında:**
-```bash
-python app.py
-```
-
-**Windows servisi olarak (NSSM ile):**
-```bash
-# Servisi kur
-nssm install "Mola Takip" "C:\path\to\python.exe" "C:\path\to\service_mola_takip.py"
-
-# Servisi başlat
-nssm start "Mola Takip"
-```
-
-Ardından tarayıcıda açın: **http://localhost:8501**
-
----
-
-## ⚙️ Konfigürasyon
-
-### Vardiya Tanımları (`models.py`)
-
-```python
-VARDIYALAR = [
-    {
-        "ad": "Gündüz",
-        "baslangic": time(8, 0),
-        "bitis": time(16, 10),
-        "mesai_esigi": time(16, 40)
-    },
-    {
-        "ad": "Ara",
-        "baslangic": time(16, 0),
-        "bitis": time(0, 30),
-        "mesai_esigi": time(1, 0)
-    },
-    {
-        "ad": "Gece",
-        "baslangic": time(0, 0),
-        "bitis": time(8, 0),
-        "mesai_esigi": time(8, 30)
-    }
-]
-```
-
-### Mola Limitleri (`models.py`)
-
-| Görev Tipi | Normal Çıkış | Mesai Yapan |
-|-----------|---------|-----------|
-| Normal personel | 45 dakika | 60 dakika |
-| Bakım/Elektrik | 60 dakika | 90 dakika |
-
-### Bakım/Elektrik Görevleri
-
-`models.py` içinde `BAKIM_ELEKTRIK_GOREVLER` listesine eklenen görevler farklı mola limitine tabidir.
-
-### Çift Okutma Eşiği
-
-```python
-CIFT_OKUTMA_ESIGI_DK: float = 4 / 60  # 4 saniye
-```
-
-Aynı tipte (giriş veya çıkış) kayıtlar 4 saniye içinde gelirse çift okutma olarak işaretlenir.
-
----
 
 ## 📁 Proje Yapısı
 
@@ -286,6 +171,117 @@ mola-takip-sistemi/
         │  - İndir düğmeleri                   │
         └──────────────────────────────────────┘
 ```
+
+
+---
+## 💻 Kurulum
+
+### Ön Koşullar
+
+- **Python 3.9+** (3.10+ önerilir)
+- **SQL Server** 2016 veya üzeri
+- **ODBC Driver 17 for SQL Server**
+- **Windows** işletim sistemi (NSSM için)
+
+### 1. Depo İndir
+
+```bash
+git clone https://github.com/yourusername/mola-takip-sistemi.git
+cd mola-takip-sistemi
+```
+
+### 2. Python Ortamını Kur
+
+```bash
+# Virtual environment oluştur
+python -m venv venv
+
+# Ortamı aktifleştir (Windows)
+venv\Scripts\activate
+
+# Ortamı aktifleştir (Linux/Mac)
+source venv/bin/activate
+```
+
+### 3. Bağımlılıkları Yükle
+
+```bash
+pip install -r requirements.txt
+```
+
+### 4. .env Dosyasını Oluştur
+
+`.env` dosyasını proje root'unda oluştur ve SQL Server bilgilerini gir:
+
+```env
+DB_SERVER=GEDIKDB\GDK
+DB_PORT=1433
+DB_NAME=GEDIKPILIC14930_Meyer
+DB_USER=your_username
+DB_PASSWORD=your_password
+API_HOST=0.0.0.0
+API_PORT=8001
+APP_ENV=production
+```
+
+### 5. Uygulamayı Çalıştır
+
+**Geliştirme ortamında:**
+```bash
+python app.py
+```
+
+Ardından tarayıcıda açın: **http://localhost:8501**
+
+---
+
+## ⚙️ Konfigürasyon
+
+### Vardiya Tanımları (`models.py`)
+
+```python
+VARDIYALAR = [
+    {
+        "ad": "Gündüz",
+        "baslangic": time(8, 0),
+        "bitis": time(16, 10),
+        "mesai_esigi": time(16, 40)
+    },
+    {
+        "ad": "Ara",
+        "baslangic": time(16, 0),
+        "bitis": time(0, 30),
+        "mesai_esigi": time(1, 0)
+    },
+    {
+        "ad": "Gece",
+        "baslangic": time(0, 0),
+        "bitis": time(8, 0),
+        "mesai_esigi": time(8, 30)
+    }
+]
+```
+
+### Mola Limitleri (`models.py`)
+
+| Görev Tipi | Normal Çıkış | Mesai Yapan |
+|-----------|---------|-----------|
+| Normal personel | 45 dakika | 60 dakika |
+| Bakım/Elektrik | 60 dakika | 90 dakika |
+
+### Bakım/Elektrik Görevleri
+
+`models.py` içinde `BAKIM_ELEKTRIK_GOREVLER` listesine eklenen görevler farklı mola limitine tabidir.
+
+### Çift Okutma Eşiği
+
+```python
+CIFT_OKUTMA_ESIGI_DK: float = 4 / 60  # 4 saniye
+```
+
+Aynı tipte (giriş veya çıkış) kayıtlar 4 saniye içinde gelirse çift okutma olarak işaretlenir.
+
+---
 
 ### Mola Hesaplama Algoritması
 
@@ -483,98 +479,6 @@ Sağlık kontrol (health check).
 ```
 
 ---
-
-## 📄 Dosya Açıklamaları
-
-### 1. **app.py** (FastAPI Uygulaması)
-**Görev:** Ana uygulama, tüm API endpoints'leri ve kimlik doğrulamayı yönetir.
-
-**Ana Bölümler:**
-
-| Bölüm | Görev |
-|-------|-------|
-| **Auth & Session** | Kullanıcı oturum yönetimi, token kontrol |
-| **Admin Fonksiyon.** | Kullanıcı oluşturma, silme, şifre değiştirme |
-| **Analiz Endpoints** | `/analiz`, `/gorevler`, Excel indir |
-| **Frontend Dosyaları** | `static/` klasöründen HTML/JS sunma |
-
-**Önemli Fonksiyonlar:**
-- `login_user()` - Kimlik kontrolü ve token oluşturma
-- `get_current_user()` - Aktif oturumu doğrula
-- `analiz_yap()` - Mola analizi yap
-- `analiz_excel_ozet()` - Özet Excel döndür
-- `analiz_excel_detay()` - Detaylı Excel döndür
-
----
-
-### 2. **hesaplama.py** (Mola Hesaplama Motoru)
-**Görev:** Ham veri işlemesi, mola hesapları ve raporlama.
-
-**Ana Fonksiyonlar:**
-
-| Fonksiyon | Amacı |
-|-----------|-------|
-| `cift_okutma_tespit()` | Aynı günde, aynı tipte, 4 sn içindeki iki kaydı bulur |
-| `ham_veri_isle()` | Meyer raw kayıtlarını çalışma/mola periyotlarına dönüştürür |
-| `mola_hesapla()` | Kişi+görev+gün bazında mola özetini hesaplar |
-| `excel_hazirla()` | Özet Excel raporu oluşturur |
-| `excel_hazirla_detay()` | Detaylı Excel raporu oluşturur |
-| `hareket_listesi_olustur()` | Bir kişinin giriş/çıkış timeline'ını oluşturur |
-
-**Algoritma Özeti:**
-1. Ham kayıtları tarih + kişi bazında grupla
-2. Çift okutmaları tespit et ve işaretle
-3. Art arda aynı tipte kayıtları temizle
-4. Ardışık kayıt çiftlerinden periyotlar oluştur (Giriş→Çıkış=çalışma, Çıkış→Giriş=mola)
-5. Vardiya belirle
-6. Mola limitini hesapla
-7. Anomali tespit et
-8. Sonuçları birleştir
-
----
-
-### 3. **models.py** (Veri Modelleri & Kurallar)
-**Görev:** Vardiya tanımları, mola limitleri, veri yapıları.
-
-**Önemli Tanımlar:**
-
-| Tanım | Değer | Açıklama |
-|-------|-------|----------|
-| `VARDIYALAR` | list | Gündüz, Ara, Gece vardiyası tanımları |
-| `MOLA_LIMIT_NORMAL` | 45 dk | Normal personel mola limiti |
-| `MOLA_LIMIT_MESAI` | 60 dk | Mesai yapan personel mola limiti |
-| `BAKIM_ELEKTRIK_GOREVLER` | list | Bakım/Elektrik görev listeleri |
-| `CIFT_OKUTMA_ESIGI_DK` | 4 sn | Çift okutma tespiti için zaman farkı |
-
-**Veri Sınıfları:**
-- `MolaSonucu` - Kişi başına mola sonucu
-- `CiftOkutma` - Çift okutma kaydı
-- `HareketKaydi` - Tek bir giriş/çıkış hareketi
-
-**Önemli Fonksiyonlar:**
-- `vardiya_bul()` - Giriş saatine göre vardiya belirler
-- `mola_limiti_hesapla()` - Vardiya ve çıkış saatine göre limit hesaplar
-- `is_bakim_elektrik()` - Görevin bakım/elektrik kategorisinde olup olmadığını kontrol eder
-
----
-
-### 4. **config.py** (Ayarlar & Bağlantı)
-**Görev:** Ortam değişkenlerini oku, DB bağlantı URL'si oluştur.
-
-**Önemli Sınıflar:**
-- `Settings` - Pydantic BaseSettings, `.env` dosyasından okunur
-
-**Bağlantı Bilgileri:**
-```
-DB_SERVER    - SQL Server adı/adresi
-DB_PORT      - Port (varsayılan: 1433)
-DB_NAME      - Veritabanı adı
-DB_USER      - Kullanıcı adı
-DB_PASSWORD  - Şifre
-APP_ENV      - Ortam (production/development)
-API_HOST     - API dinleme adresi
-API_PORT     - API dinleme portu
-```
 
 ---
 
@@ -782,69 +686,6 @@ data/
 2. Çıkarmak istediğin kullanıcıyı bul
 3. **Çıkış Yap** butonuna tıkla
 4. Kullanıcı anlık 401 hatası alır ve login ekranına döner
-
----
-
-## 🚀 Performans İpuçları
-
-### 1 Aylık Veri (~30,000 satır)
-- **Önceki:** ~30 saniye (tüm veriyi her işlemde tarıyor)
-- **Şimdi:** ~1 saniye (groupby + caching ile)
-
-### Optimizasyonlar Yapıldı:
-
-1. **GroupBy Caching** (`app.py`, line 717)
-   ```python
-   df_ham_gruplari = {
-       pid: grup.reset_index(drop=True)
-       for pid, grup in df_ham.groupby("PersonelID")
-   }
-   ```
-
-2. **DB Caching** (`database.py`)
-   ```python
-   _cache[cache_key] = (df.copy(), now)  # 10 dakika TTL
-   ```
-
-3. **Connection Pooling** (`database.py`)
-   ```python
-   pool_size=10, max_overflow=20, pool_timeout=60
-   ```
-
----
-
-## 🐛 Sorun Giderme
-
-### 1. "Veritabanı bağlantı hatası"
-
-**Çözüm:**
-- `.env` dosyasındaki DB bilgilerini kontrol et
-- SQL Server'ın çalışmakta olduğundan emin ol
-- ODBC Driver 17'nin yüklü olduğundan emin ol:
-  ```bash
-  odbcinst -j  # Linux
-  ```
-
-### 2. "Oturum süresi doldu"
-
-**Çözüm:**
-- Token'ın 30 dakika geçerlidir
-- Tekrar giriş yap
-- `/api/admin/sessions/{username}` ile oturumu temizle
-
-### 3. "Kayıt bulunamadı"
-
-**Çözüm:**
-- Tarih aralığını kontrol et
-- Görevlerin uygun olduğundan emin ol
-- Meyer Pool tablosunda o tarihlerde kayıtlar olduğundan emin ol
-
-### 4. "Excel dosyası oluşturulamadı"
-
-**Çözüm:**
-- `/tmp` klasöründe yazma izni ol
-- Disk alanı yeterli ol
-- openpyxl ve pandas güncel olduğundan emin ol
 
 ---
 ## 👨‍💼 Maintainer
